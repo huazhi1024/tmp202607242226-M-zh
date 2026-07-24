@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MUSHRA 听音测试 · 边框播放效果</title>
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --light-bg: #f8f9fa;
+      --border-color: #dee2e6;
+      --text-color: #2c3e50;
+      --card-bg: #ffffff;
+      --highlight-color: #e3f2fd;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--light-bg);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      display: flex;
+      max-width: 1600px;
+      margin: 0 auto;
+      gap: 30px;
+    }
+    
+    .left-panel {
+      flex: 0 0 380px;
+      position: sticky;
+      top: 20px;
+      height: calc(100vh - 40px);
+      overflow-y: auto;
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      padding: 0;
+    }
+    
+    .left-panel h1 {
+      background: linear-gradient(135deg, var(--primary-color), #2980b9);
+      color: white;
+      margin: 0;
+      padding: 8px 20px;
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+      font-size: 1.5rem;
+      line-height: 1.2;       /* 控制行高，避免文字上下留白过多 */
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+    
+    .right-panel {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: var(--text-color);
+    }
+    
+    h2 {
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 10px;
+      font-size: 1.4rem;
+    }
+    
+    .instructions {
+      background: var(--card-bg);
+      border-radius: 0 0 12px 12px;
+      padding: 25px;
+      margin-bottom: 0;
+      box-shadow: none;
+      border: none;
+      height: auto;
+    }
+    
+    .instructions h2 {
+      color: var(--primary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 5px;
+      margin-bottom: 8px;
+      font-size: 1.3rem;
+      text-align: center;
+    }
+    
+    .instructions ul {
+      line-height: 1.8;
+      margin: 20px 0;
+      padding-left: 20px;
+    }
+    
+
+
+    .instructions ul li {
+    margin-bottom: 4px;      /* 原12px，调小间距 */
+    padding: 4px 10px;       /* 原8px，适当减小内边距 */
+    font-size: 13px;         /* 新增：字体稍小 */
+    border-left: 4px solid var(--primary-color);
+    background: #f8fafc;
+    border-radius: 6px;
+  }
+
+    .instructions ul li span {
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #e3f2fd;
+    }
+    
+    table.score-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 14px;
+      background: var(--card-bg);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      table-layout: fixed;
+    }
+    
+    table th:nth-child(1), table td:nth-child(1) { width: 8%; }
+    table th:nth-child(2), table td:nth-child(2) { width: 72%; }
+    table th:nth-child(3), table td:nth-child(3) { width: 20%; }
+    
+    table th, table td {
+      border: 1px solid var(--border-color);
+      padding: 14px 12px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    
+    table th {
+      background-color: #f1f8ff;
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 15px;
+    }
+    
+    table tr:nth-child(even) { background-color: #f8fafc; }
+    table tr:hover { background-color: var(--highlight-color); }
+    
+    .group-control {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin: 20px 0;
+      padding: 18px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .group-control button {
+      padding: 10px 25px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      min-width: 100px;
+    }
+    
+    .group-control button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .group-control button:disabled {
+      background-color: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    
+    .group-info {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-color);
+      min-width: 140px;
+      text-align: center;
+      padding: 8px 15px;
+      background: #f1f8ff;
+      border-radius: 6px;
+    }
+    
+    .group { display: none; margin-bottom: 30px; }
+    .active { display: block; }
+    
+    input[type="number"] {
+      width: 70px;
+      padding: 8px 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 600;
+      transition: border-color 0.2s;
+      background: white;
+    }
+    
+    input[type="number"]:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+    
+    input[type="number"].invalid-score {
+      border-color: var(--danger-color) !important;
+      background-color: #ffeaea;
+    }
+    
+    audio {
+      width: 100%;
+      max-width: 280px;
+      height: 40px;
+      border-radius: 20px;
+    }
+    
+    audio::-webkit-media-controls-panel { background-color: #f1f8ff; }
+    
+    .progress {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: bold;
+      color: var(--text-color);
+      font-size: 16px;
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+      padding: 15px;
+      font-size: 14px;
+      border-radius: 10px;
+      border: 2px solid var(--border-color);
+      background: var(--card-bg);
+      resize: vertical;
+      font-family: 'Consolas', monospace;
+      line-height: 1.5;
+    }
+    
+    .result-buttons {
+      text-align: center;
+      margin-top: 25px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    .result-buttons button {
+      padding: 12px 24px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+      min-width: 140px;
+    }
+    
+    .collect-btn { background-color: var(--success-color); }
+    .collect-btn:hover { background-color: #27ae60; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(46, 204, 113, 0.3); }
+    
+    .download-btn { background-color: var(--primary-color); }
+    .download-btn:hover { background-color: #2980b9; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3); }
+    
+    .clear-btn { background-color: var(--danger-color); }
+    .clear-btn:hover { background-color: #c0392b; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3); }
+    
+    .rating-scale {
+      margin-top: 25px;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .rating-scale p {
+      margin: 6px 0;
+      padding: 8px 12px;
+      font-size: 12px;            
+      border-left: 4px solid;
+      background: white;
+      border-radius: 0 8px 8px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+    }
+    .rating-scale p:hover { transform: translateX(5px); }
+    .rating-scale p:nth-child(1) { border-color: var(--success-color); }
+    .rating-scale p:nth-child(2) { border-color: #7bc043; }
+    .rating-scale p:nth-child(3) { border-color: var(--warning-color); }
+    .rating-scale p:nth-child(4) { border-color: #e67e22; }
+    .rating-scale p:nth-child(5) { border-color: var(--danger-color); }
+    
+    .missing-scores {
+      color: var(--danger-color);
+      font-weight: bold;
+      margin-top: 15px;
+      padding: 12px;
+      background: #ffeaea;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #ffcdd2;
+    }
+    
+    .highlight-missing { background-color: #ffeaea !important; animation: pulse 1.5s infinite; }
+    @keyframes pulse {
+      0% { background-color: #ffeaea; }
+      50% { background-color: #ffd6d6; }
+      100% { background-color: #ffeaea; }
+    }
+    
+    .missing-score-input { border-color: var(--danger-color) !important; background-color: #ffeaea; }
+    
+    /* 播放状态边框效果 */
+    .playing-border {
+      border: 3px solid var(--primary-color) !important;
+      box-shadow: 0 0 15px rgba(52,152,219,0.5);
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    
+    .completion-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .modal-content h3 {
+      margin-top: 0;
+      color: var(--text-color);
+      font-size: 1.5rem;
+    }
+    
+    .modal-content pre {
+      background: #f1f3f4;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 13px;
+      overflow-x: auto;
+    }
+    
+    .modal-content button {
+      margin: 10px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      background-color: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.2s;
+      min-width: 160px;
+    }
+    
+    .modal-content button:hover { background-color: #2980b9; }
+    .modal-content .secondary-btn { background-color: #95a5a6; }
+    .modal-content .secondary-btn:hover { background-color: #7f8c8d; }
+    
+    .subtitle {
+      margin-top: 8px;
+      font-style: italic;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    
+    .audio-controls-hint {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 13px;
+      color: #7f8c8d;
+      padding: 8px;
+      background: #f8fafc;
+      border-radius: 6px;
+    }
+    
+    .group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 18px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .completion-status { font-size: 14px; color: #7f8c8d; }
+    .completed { color: var(--success-color); font-weight: bold; }
+    
+    .action-buttons {
+      text-align: center;
+      margin-top: 10px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border-color);
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .action-buttons button {
+      margin-bottom: 6px;
+      width: 100%;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .action-buttons p {
+      font-size: 11px !important;  /* 提示文字更小 */
+      margin-top: 2px !important;
+    }
+    
+    .action-buttons button:first-of-type {
+      background: linear-gradient(135deg, #6c757d, #5a6268);
+      color: white;
+    }
+    .action-buttons button:first-of-type:hover {
+      background: linear-gradient(135deg, #5a6268, #495056);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+    }
+    .action-buttons button:last-of-type {
+      background: linear-gradient(135deg, #17a2b8, #138496);
+      color: white;
+    }
+    .action-buttons button:last-of-type:hover {
+      background: linear-gradient(135deg, #138496, #117a8b);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
+    }
+    
+    .comparison-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 10px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    
+    .reference-audio, .test-audio {
+      flex: 1;
+      text-align: center;
+      padding: 15px;
+      border-radius: 6px;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    
+    .reference-audio {
+      background: linear-gradient(135deg, #e3f2fd, #f1f8ff);
+      /* border: 2px solid var(--primary-color); */
+      border: 2px solid transparent; /* 或者不加边框，但为了布局不变可设为透明边框 */
+    }
+    
+    .test-audio {
+      background: white;
+      border: 2px solid var(--border-color);
+    }
+    
+    .audio-label {
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    
+    .reference-label { color: white; background: var(--primary-color); }
+    .test-label { color: var(--text-color); background: #e9ecef; }
+    
+    @media (max-width: 1024px) {
+      .container { flex-direction: column; }
+      .left-panel { position: static; height: auto; max-height: 500px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- 左侧固定面板 -->
+  <div class="left-panel">
+    <h1>MUSHRA 听音测试</h1>
+
+    <!-- 打分规则 -->
+    <div class="instructions">
+      <h2>打分说明</h2>
+      <p>请根据每个音频 <strong style="color: var(--danger-color);">与参考音频的音质差异</strong> 进行 0–100 分的评分。从5个角度比较：</p>
+      
+      <!-- <ul>
+        <li><span>内容</span>：单词是否读正确</li>
+        <li><span>音色</span>：说话人是否一致</li>
+        <li><span>韵律</span>：语调节奏是否一致</li>
+        <li><span>响度</span>：音量是否稳定</li>
+        <li><span>噪声</span>：背景是否干净</li>
+      </ul> -->
+
+      <ul>
+        <li><span>内容</span>：每个词都能听清?有无丢字/错字/模糊?</li>
+        <li><span>音色</span>：说话人听起来是否还是同一个人?</li>
+        <li><span>韵律</span>：语调节奏是否一致?</li>
+        <li><span>响度</span>：音量是否稳定?</li>
+        <li><span>噪声</span>：背景是否干净,有无明显失真?</li>
+      </ul>
+
+      
+      <!-- <div class="rating-scale">
+        <p><b>85–100</b>：非常好，感觉与参考几乎无差别</p>
+        <p><b>70–85</b>：良好，轻微差别</p>
+        <p><b>50–70</b>：一般，明显下降（1个角度明显差别）</p>
+        <p><b>20–50</b>：差，有严重失真（2个以上角度明显差别）</p>
+        <p><b>1–20</b>：非常差，极度刺耳或无法接受</p>
+      </div> -->
+      
+      <div class="rating-scale">
+        <p>85–100：优秀</b> —— 与参考音频相比几乎无差别或完全一致。
+          <br><b>95–100：</b>感觉完全相同（无任何可闻差异）
+          <br><b>85–95：</b>有极细微差别，但需要仔细对比才能察觉</p>
+        <p><b>70–85：良好</b> —— 有轻微但可察觉的差别（例如音色略有不同/轻微噪声），但不影响整体听感</p>
+        <p><b>50–70：一般</b> —— 质量明显下降（能感知到至少一个方面的明显问题，如音色改变、背景噪声等）</p>
+        <p><b>20–50：差</b> —— 严重失真（多个方面有明显问题，如音色扭曲、噪声严重、可懂度下降）</p>
+        <p><b>0–20：非常差</b> —— 极度刺耳或无法接受，与锚点（低质量参考）类似或更差</p>
+        <p style="color: var(--danger-color);">每组中包含一个低质量锚点，请以此作为评分下限的参考。</p>
+      </div> 
+
+
+      <div class="action-buttons">
+        <button onclick="resetAudioOrder()">重新随机音频顺序</button>
+        <p style="font-size: 12px; color: #666; margin-top: 5px;">点击将重新随机所有音频顺序并刷新页面</p>
+        <button onclick="showCurrentOrder()">显示当前音频顺序</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧主要内容 -->
+  <div class="right-panel">
+    <div class="group-control">
+      <button id="prev-group" disabled>上一组</button>
+      <div class="group-info">第 <span id="current-group">1</span> 组 / 共 <span id="total-groups">24</span> 组</div>
+      <button id="next-group">下一组</button>
+    </div>
+
+    <div id="groups"><!-- 动态生成组内容 --></div>
+
+    <div class="progress" id="overall-progress"></div>
+
+    <h2>评分结果</h2>
+    <textarea id="results" readonly placeholder="完成所有打分后，点击【收集打分】生成结果文本"></textarea>
+
+    <div class="result-buttons">
+      <button class="collect-btn" onclick="collectScores()">收集打分</button>
+      <button class="download-btn" onclick="downloadScores()">保存打分文件</button>
+      <button class="clear-btn" onclick="clearScores()">清空打分</button>
+    </div>
+  </div>
+</div>
+
+<!-- 首次打开提示弹窗 -->
+<div id="resetPromptModal" class="completion-modal" style="display: none;">
+  <div class="modal-content">
+    <h3>🔊 准备听音测试</h3>
+    <p>为了确保评分准确，建议您先清空可能存在的历史打分，并重新随机音频顺序。</p>
+    <p style="font-size: 14px; color: #e67e22;">点击下方按钮将清除所有已有分数并重新打乱音频顺序。</p>
+    <button id="confirmResetBtn" style="background-color: var(--primary-color);">立即清空并重新随机（首次打开点这里）</button>
+    <button class="secondary-btn" id="skipResetBtn">暂不操作（断点续听点这里）</button>
+  </div>
+</div>
+
+<!-- 显示顺序的模态框 -->
+<div id="orderModal" class="completion-modal" style="display: none;">
+  <div class="modal-content">
+    <h3>📋 当前音频顺序</h3>
+    <div id="orderContent" style="max-height: 400px; overflow-y: auto; text-align: left;"></div>
+    <button class="secondary-btn" onclick="document.getElementById('orderModal').style.display='none'">关闭</button>
+  </div>
+</div>
+
+<!-- 原完成弹窗保留 -->
+<div id="completionModal" class="completion-modal">
+  <div class="modal-content">
+    <h3>评分完成</h3>
+    <p>您已完成所有评分！感谢您的参与。</p>
+    <button onclick="downloadAndClose()">保存并下载结果</button>
+    <button onclick="closeModal()">仅查看结果</button>
+  </div>
+</div>
+
+<script>
+  const totalGroups = 20; // 与数据组数匹配
+  let currentGroupIndex = 0;
+  const groupsContainer = document.getElementById('groups');
+  document.getElementById('total-groups').textContent = totalGroups;
+
+  // ---------- 音频数据 (完整24组，此处仅展示前3组作为示例，实际使用时请粘贴完整数据) ----------
+  const audioGroups = [
+    {
+      groupName: "Group1 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00378I0019@gt_16kHz16bit.wav",
+      refSubtitle: "翁的帮派技能是不是都满了",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00378I0019@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00378I0019@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00378I0019@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00378I0019@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00378I0019@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00378I0019@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00378I0019@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00378I0019_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+    },
+    {
+      groupName: "Group2 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00387A0017@gt_16kHz16bit.wav",
+      refSubtitle: "宣传群快点给我踢了吧",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00387A0017@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00387A0017@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00387A0017@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00387A0017@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00387A0017@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00387A0017@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00387A0017@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00387A0017_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+
+    },
+
+    {
+      groupName: "Group3 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00395A0114@gt_16kHz16bit.wav",
+      refSubtitle: "认识 嗯 反应比较慢 二娃还在你家啊",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00395A0114@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00395A0114@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00395A0114@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00395A0114@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00395A0114@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00395A0114@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00395A0114@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00395A0114_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+
+     
+    },
+
+    {
+      groupName: "Group4 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00397A0036@gt_16kHz16bit.wav",
+      refSubtitle: "那时候我就发现牙齿变黄了",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00397A0036@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00397A0036@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00397A0036@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00397A0036@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00397A0036@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00397A0036@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00397A0036@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00397A0036_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+     
+    },
+
+
+    {
+      groupName: "Group5 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00397I0029@gt_16kHz16bit.wav",
+      refSubtitle: "不要在群里说这个词吧",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00397I0029@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00397I0029@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00397I0029@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00397I0029@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00397I0029@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00397I0029@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00397I0029@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00397I0029_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+
+     
+    },
+
+
+    {
+      groupName: "Group6 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00401A0081@gt_16kHz16bit.wav",
+      refSubtitle: "气的哇娃叫 群主在吗 小丽在不",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00401A0081@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00401A0081@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00401A0081@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00401A0081@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00401A0081@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00401A0081@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00401A0081@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00401A0081_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+     
+    },
+
+    {
+      groupName: "Group7 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00406A0041@gt_16kHz16bit.wav",
+      refSubtitle: "我们被别人雇佣就一定是被剥削的",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00406A0041@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00406A0041@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00406A0041@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00406A0041@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00406A0041@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00406A0041@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00406A0041@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00406A0041_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+      
+    },
+
+    {
+      groupName: "Group8 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00438A0001@gt_16kHz16bit.wav",
+      refSubtitle: "连陌生人都不如 陌生人不会冤枉我",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00438A0001@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00438A0001@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00438A0001@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00438A0001@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00438A0001@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00438A0001@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00438A0001@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00438A0001_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+      
+    },
+
+    {
+      groupName: "Group9 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00439A0067@gt_16kHz16bit.wav",
+      refSubtitle: "围绕着整个阿维尼翁的主城区",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00439A0067@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00439A0067@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00439A0067@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00439A0067@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00439A0067@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00439A0067@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00439A0067@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00439A0067_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+
+      
+    },
+
+    {
+      groupName: "Group10 (~1000bps)",
+      refAudio: "audio/STCMDS/20170001P00441A0057@gt_16kHz16bit.wav",
+      refSubtitle: "荣膺三等甲级荣誉军人",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00441A0057@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00441A0057@semanticodec_1250bps_16kHz16bit.wav", hidden_method: "M2.1" },
+        { id: 3, path: "audio/STCMDS/20170001P00441A0057@mimi_1100bps_16kHz16bit.wav", hidden_method: "M3.1" },
+        { id: 4, path: "audio/STCMDS/20170001P00441A0057@speechtokenizer_1000bps_16kHz16bit.wav", hidden_method: "M4.1" },
+        { id: 5, path: "audio/STCMDS/20170001P00441A0057@dac_1000bps_16kHz16bit.wav", hidden_method: "M5.1" },
+        { id: 6, path: "audio/STCMDS/20170001P00441A0057@freqcodec_1000bps_16kHz16bit.wav", hidden_method: "M6.1" },
+        { id: 7, path: "audio/STCMDS/20170001P00441A0057@ours_1000bps_16kHz16bit.wav", hidden_method: "M7.1" },
+        { id: 8, path: "audio/anchor_STCMDS/speex4kbps_20170001P00441A0057_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+
+     
+    },
+   
+    // 实际使用时请把剩余21组数据粘贴在此处(300bps)
+    {
+      groupName: "Group11 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00378I0019@gt_16kHz16bit.wav",
+      refSubtitle: "翁的帮派技能是不是都满了",
+      models: [
+        { id: 1, path: "audio/STCMDS/20170001P00378I0019@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00378I0019@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00378I0019@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00378I0019@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00378I0019@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00378I0019@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00378I0019@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00378I0019@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00378I0019@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00378I0019_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+    },
+    
+    {
+      groupName: "Group12 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00387A0017@gt_16kHz16bit.wav",
+      refSubtitle: "宣传群快点给我踢了吧",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00387A0017@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00387A0017@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00387A0017@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00387A0017@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00387A0017@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00387A0017@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00387A0017@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00387A0017@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00387A0017@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00387A0017_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]
+      
+
+    },
+
+    {
+      groupName: "Group13 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00395A0114@gt_16kHz16bit.wav",
+      refSubtitle: "认识 嗯 反应比较慢 二娃还在你家啊",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00395A0114@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00395A0114@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00395A0114@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00395A0114@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00395A0114@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00395A0114@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00395A0114@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00395A0114@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00395A0114@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00395A0114_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]      
+
+     
+    },
+
+    {
+      groupName: "Group14 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00397A0036@gt_16kHz16bit.wav",
+      refSubtitle: "那时候我就发现牙齿变黄了",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00397A0036@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00397A0036@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00397A0036@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00397A0036@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00397A0036@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00397A0036@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00397A0036@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00397A0036@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00397A0036@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00397A0036_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]        
+     
+    },
+
+
+    {
+      groupName: "Group15 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00397I0029@gt_16kHz16bit.wav",
+      refSubtitle: "不要在群里说这个词吧",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00397I0029@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00397I0029@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00397I0029@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00397I0029@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00397I0029@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00397I0029@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00397I0029@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00397I0029@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00397I0029@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00397I0029_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]      
+
+     
+    },
+
+
+    {
+      groupName: "Group16 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00401A0081@gt_16kHz16bit.wav",
+      refSubtitle: "气的哇娃叫 群主在吗 小丽在不",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00401A0081@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00401A0081@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00401A0081@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00401A0081@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00401A0081@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00401A0081@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00401A0081@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00401A0081@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00401A0081@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00401A0081_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]        
+     
+    },
+
+    {
+      groupName: "Group17 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00406A0041@gt_16kHz16bit.wav",
+      refSubtitle: "我们被别人雇佣就一定是被剥削的",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00406A0041@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00406A0041@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00406A0041@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00406A0041@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00406A0041@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00406A0041@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00406A0041@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00406A0041@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00406A0041@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00406A0041_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]         
+      
+    },
+
+    {
+      groupName: "Group18 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00438A0001@gt_16kHz16bit.wav",
+      refSubtitle: "连陌生人都不如 陌生人不会冤枉我",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00438A0001@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00438A0001@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00438A0001@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00438A0001@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00438A0001@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00438A0001@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00438A0001@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00438A0001@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00438A0001@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00438A0001_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]        
+      
+    },
+
+    {
+      groupName: "Group19 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00439A0067@gt_16kHz16bit.wav",
+      refSubtitle: "围绕着整个阿维尼翁的主城区",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00439A0067@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00439A0067@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00439A0067@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00439A0067@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00439A0067@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00439A0067@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00439A0067@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00439A0067@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00439A0067@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00439A0067_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]       
+
+      
+    },
+
+    {
+      groupName: "Group20 (~500bps)",
+      refAudio: "audio/STCMDS/20170001P00441A0057@gt_16kHz16bit.wav",
+      refSubtitle: "荣膺三等甲级荣誉军人",
+	    models: [
+        { id: 1, path: "audio/STCMDS/20170001P00441A0057@gt_16kHz16bit.wav", hidden_method: "M1" },
+        { id: 2, path: "audio/STCMDS/20170001P00441A0057@semanticodec_630bps_16kHz16bit.wav", hidden_method: "M2.2" },
+		    { id: 3, path: "audio/STCMDS/20170001P00441A0057@semanticodec_310bps_16kHz16bit.wav", hidden_method: "M2.3" },
+        { id: 4, path: "audio/STCMDS/20170001P00441A0057@mimi_550bps_16kHz16bit.wav", hidden_method: "M3.2" },
+        { id: 5, path: "audio/STCMDS/20170001P00441A0057@speechtokenizer_500bps_16kHz16bit.wav", hidden_method: "M4.2" },
+        { id: 6, path: "audio/STCMDS/20170001P00441A0057@dac_500bps_16kHz16bit.wav", hidden_method: "M5.2" },
+        { id: 7, path: "audio/STCMDS/20170001P00441A0057@freqcodec_500bps_16kHz16bit.wav", hidden_method: "M6.2" },
+        { id: 8, path: "audio/STCMDS/20170001P00441A0057@ours_500bps_16kHz16bit.wav", hidden_method: "M7.2" },
+		    { id: 9, path: "audio/STCMDS/20170001P00441A0057@ours_250bps_16kHz16bit.wav", hidden_method: "M7.3" },
+        { id: 10, path: "audio/anchor_STCMDS/speex4kbps_20170001P00441A0057_gt_16kHz16bit.wav", hidden_method: "M8" },
+      ]          
+
+     
+    },
+
+
+  ];
+
+  // ----- 工具函数 -----
+  function shuffleArray(arr) { const a = [...arr]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function getShuffleKey(groupName) { return `shuffle_${groupName.replace(/\s+/g, '_')}`; }
+
+  // 初始化随机顺序 (同原始逻辑)
+  function initializeRandomOrder() {
+    audioGroups.forEach(group => {
+      const key = getShuffleKey(group.groupName);
+      let savedOrder = localStorage.getItem(key);
+      if (!savedOrder) {
+        const shuffledModels = shuffleArray([...group.models]);
+        const orderToSave = shuffledModels.map(m => m.hidden_method);
+        localStorage.setItem(key, JSON.stringify(orderToSave));
+        savedOrder = localStorage.getItem(key);
+      }
+      const orderArray = JSON.parse(savedOrder);
+      const orderedModels = [];
+      orderArray.forEach(hiddenMethod => {
+        const model = group.models.find(m => m.hidden_method === hiddenMethod);
+        if (model) orderedModels.push({...model});
+      });
+      group.models.forEach(m => { if(!orderedModels.find(om=>om.hidden_method===m.hidden_method)) orderedModels.push({...m}); });
+      group.models.length = 0;
+      group.models.push(...orderedModels);
+      group.models.forEach((model, idx) => model.displayId = idx+1);
+    });
+  }
+  initializeRandomOrder();
+
+  // 动态生成组表格
+  audioGroups.forEach((group, idx) => {
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'group' + (idx===0?' active':'');
+    groupDiv.id = `group-${idx+1}`;
+    const header = document.createElement('div'); header.className = 'group-header';
+    const title = document.createElement('h2'); title.textContent = group.groupName;
+    const status = document.createElement('div'); status.className = 'completion-status'; status.id = `completion-${idx+1}`; status.textContent = '未完成';
+    header.appendChild(title); header.appendChild(status); groupDiv.appendChild(header);
+
+    const table = document.createElement('table'); table.className = 'score-table';
+    table.innerHTML = `<thead><tr><th>编号</th><th>音频对比</th><th>打分 (1-100)</th></tr></thead>`;
+    const tbody = document.createElement('tbody');
+    tbody.innerHTML = `<tr><td colspan="3" class="audio-controls-hint">💡可以反复播放参考音频和待测音频进行比较，确保听完整段音频后再打分</td></tr>`;
+    group.models.forEach(model => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${model.displayId}</td>
+        <td>
+          <div class="comparison-container">
+            <div class="reference-audio">
+              <div class="audio-label reference-label">参考音频</div>
+              <audio controls src="${group.refAudio}"></audio>
+              <div class="subtitle">${group.refSubtitle || ''}</div>
+            </div>
+            <div class="test-audio">
+              <div class="audio-label test-label">待测音频</div>
+              <audio controls src="${model.path}"></audio>
+            </div>
+          </div>
+        </td>
+        <td>
+          <input type="number" min="1" max="100" step="1" value=""
+               data-group="${idx+1}" data-model="model${model.id}" 
+               data-hidden="${model.hidden_method || ''}" data-original-id="${model.id}" data-display-id="${model.displayId}">
+        </td>`;
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody); groupDiv.appendChild(table); groupsContainer.appendChild(groupDiv);
+  });
+
+  // ========== 首次打开弹窗 ==========
+  function performFullReset() {
+    localStorage.removeItem('mushraScores');
+    audioGroups.forEach(g => localStorage.removeItem(getShuffleKey(g.groupName)));
+    location.reload();
+  }
+
+  window.addEventListener('load', function() {
+    if (!sessionStorage.getItem('firstVisitPromptShown')) {
+      const modal = document.getElementById('resetPromptModal');
+      modal.style.display = 'flex';
+      sessionStorage.setItem('firstVisitPromptShown', 'true');
+    }
+
+    document.getElementById('confirmResetBtn').addEventListener('click', function(e) {
+      document.getElementById('resetPromptModal').style.display = 'none';
+      performFullReset();
+    });
+    document.getElementById('skipResetBtn').addEventListener('click', function() {
+      document.getElementById('resetPromptModal').style.display = 'none';
+    });
+
+    loadScoresFromStorage();
+    updateOverallProgress();
+    updateGroupControls();
+    updateResultsBox();
+    for (let i=1; i<=totalGroups; i++) updateGroupCompletionStatus(i);
+
+    // 初始化播放器：独占播放 + 边框效果
+    initAudioPlayers();
+    // 分数越界校验
+    initScoreValidation();
+  });
+
+  // ========== 播放器初始化：独占播放 + 边框效果 ==========
+  function initAudioPlayers() {
+    const allAudios = document.querySelectorAll('audio');
+    allAudios.forEach(audio => {
+      if (audio.dataset.audioInit === 'true') return;
+      audio.dataset.audioInit = 'true';
+
+      audio.addEventListener('play', function(e) {
+        // 暂停其他所有音频
+        allAudios.forEach(other => {
+          if (other !== audio && !other.paused) other.pause();
+        });
+        // 移除所有播放边框
+        document.querySelectorAll('.reference-audio, .test-audio').forEach(el => el.classList.remove('playing-border'));
+        // 为当前播放的容器添加边框
+        const parent = audio.closest('.reference-audio, .test-audio');
+        if (parent) parent.classList.add('playing-border');
+      });
+
+      audio.addEventListener('pause', function(e) {
+        const parent = audio.closest('.reference-audio, .test-audio');
+        if (parent) parent.classList.remove('playing-border');
+      });
+      audio.addEventListener('ended', function(e) {
+        const parent = audio.closest('.reference-audio, .test-audio');
+        if (parent) parent.classList.remove('playing-border');
+      });
+    });
+  }
+
+  // ========== 分数越界警告 ==========
+  function initScoreValidation() {
+    const inputs = document.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+      if (input.dataset.valInit === 'true') return;
+      input.dataset.valInit = 'true';
+
+      input.addEventListener('blur', function(e) {
+        const val = this.value.trim();
+        if (val === '') return;
+        const num = Number(val);
+        if (isNaN(num) || num <= 0 || num > 100 || !Number.isInteger(num)) {
+          alert('❌ 分数必须是1到100之间的整数（1-100）');
+          this.value = '';
+          this.classList.add('invalid-score');
+          this.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          this.classList.remove('invalid-score');
+        }
+      });
+
+      input.addEventListener('input', function() {
+        let val = this.value.trim();
+        if (val === '') {
+          this.classList.remove('invalid-score');
+          return;
+        }
+        const num = Number(val);
+        if (isNaN(num) || num <= 0 || num > 100 || !Number.isInteger(num)) {
+          this.classList.add('invalid-score');
+        } else {
+          this.classList.remove('invalid-score');
+        }
+      });
+    });
+  }
+
+  // ========== 显示当前顺序（模态框） ==========
+  function showCurrentOrder() {
+    let html = '';
+    audioGroups.forEach(group => {
+      html += `<h4>${group.groupName}</h4><ul>`;
+      group.models.forEach(model => {
+        html += `<li>编号 ${model.displayId} → ${model.hidden_method}</li>`;
+      });
+      html += '</ul>';
+    });
+    document.getElementById('orderContent').innerHTML = html;
+    document.getElementById('orderModal').style.display = 'flex';
+  }
+
+  // ---------- 以下为原有函数 (略作适配) ----------
+  function showGroup(index) {
+    document.querySelectorAll('.group').forEach((g,i) => { g.classList.toggle('active', i===index); if(i===index) updateGroupCompletionStatus(i+1); });
+    updateOverallProgress(); updateGroupControls();
+  }
+  function updateGroupControls() {
+    document.getElementById('prev-group').disabled = currentGroupIndex===0;
+    document.getElementById('next-group').disabled = currentGroupIndex===totalGroups-1;
+    document.getElementById('current-group').textContent = currentGroupIndex+1;
+  }
+  function checkCurrentGroupScores() {
+    const active = document.querySelector('.group.active');
+    const inputs = active.querySelectorAll('input[type="number"]');
+    for (let i of inputs) if (i.value===''||isNaN(i.value)) return false;
+    return true;
+  }
+  document.getElementById('prev-group').addEventListener('click', ()=>{ if(currentGroupIndex>0) { currentGroupIndex--; showGroup(currentGroupIndex); } });
+  document.getElementById('next-group').addEventListener('click', ()=>{
+    if(!checkCurrentGroupScores()) { alert('请完成当前组所有打分'); return; }
+    if(currentGroupIndex < totalGroups-1) { currentGroupIndex++; showGroup(currentGroupIndex); }
+  });
+
+  function updateOverallProgress() {
+    const total = document.querySelectorAll('input[type="number"]').length;
+    let filled = 0;
+    document.querySelectorAll('input[type="number"]').forEach(i => { if(i.value && !isNaN(i.value)) filled++; });
+    const percent = Math.round((filled/total)*100);
+    document.getElementById('overall-progress').textContent = `当前组 ${currentGroupIndex+1}/${totalGroups} | 进度: ${filled}/${total} (${percent}%)`;
+  }
+  function saveScoresToStorage() {
+    let scores = {};
+    document.querySelectorAll('input[type="number"]').forEach(i => {
+      const g = i.dataset.group, m = i.dataset.model;
+      if (!scores[g]) scores[g] = {};
+      scores[g][m] = i.value;
+    });
+    localStorage.setItem('mushraScores', JSON.stringify(scores));
+  }
+  function loadScoresFromStorage() {
+    const saved = localStorage.getItem('mushraScores');
+    if (saved) {
+      const scores = JSON.parse(saved);
+      for (let g in scores) for (let m in scores[g]) {
+        const inp = document.querySelector(`input[data-group="${g}"][data-model="${m}"]`);
+        if (inp) inp.value = scores[g][m];
+      }
+    }
+  }
+  function updateGroupCompletionStatus(gIdx) {
+    const inputs = document.querySelectorAll(`#group-${gIdx} input[type="number"]`);
+    let completed = true;
+    inputs.forEach(i => { if(!i.value || isNaN(i.value)) completed=false; });
+    const el = document.getElementById(`completion-${gIdx}`);
+    if(el) { el.textContent = completed?'已完成':'未完成'; el.className = completed?'completion-status completed':'completion-status'; }
+  }
+  function checkMissingScores() {
+    let missing = {};
+    document.querySelectorAll('input[type="number"]').forEach(i => {
+      const g=i.dataset.group, m=i.dataset.model;
+      if(i.value===''||isNaN(i.value)) {
+        if(!missing[g]) missing[g]=[];
+        missing[g].push(m);
+        i.classList.add('missing-score-input'); i.parentElement.parentElement.classList.add('highlight-missing');
+      } else {
+        i.classList.remove('missing-score-input'); i.parentElement.parentElement.classList.remove('highlight-missing');
+      }
+    });
+    return missing;
+  }
+  function collectScores() {
+    const missing = checkMissingScores();
+    if(Object.keys(missing).length>0) {
+      alert('请先完成所有打分项（红色高亮）');
+      return false;
+    }
+    let results = {};
+    document.querySelectorAll('input[type="number"]').forEach(i => {
+      const g = i.dataset.group, m = i.dataset.hidden || i.dataset.model, s = i.value;
+      if(!results[`Group ${g}`]) results[`Group ${g}`] = {};
+      results[`Group ${g}`][m] = s;
+    });
+    let text = '';
+    for(let g in results) { text += `${g}:\n`; for(let m in results[g]) text += `  ${m}: ${results[g][m]}\n`; text += '\n'; }
+    document.getElementById('results').value = text;
+    document.getElementById('completionModal').style.display = 'flex';
+    return true;
+  }
+  function downloadScores() { if(collectScores()) { const text=document.getElementById('results').value; const blob=new Blob([text],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`MUSHRA_${new Date().toLocaleString()}.txt`; a.click(); URL.revokeObjectURL(url); } }
+  function clearScores() {
+    if(confirm('确定清空所有打分？')) {
+      localStorage.removeItem('mushraScores');
+      document.querySelectorAll('input[type="number"]').forEach(i => { i.value=''; i.classList.remove('missing-score-input','invalid-score'); i.parentElement.parentElement.classList.remove('highlight-missing'); });
+      document.getElementById('results').value='';
+      for(let i=1;i<=totalGroups;i++) updateGroupCompletionStatus(i);
+    }
+  }
+  function resetAudioOrder() { if(confirm('重新随机所有音频顺序？页面将刷新')) { audioGroups.forEach(g=>localStorage.removeItem(getShuffleKey(g.groupName))); location.reload(); } }
+  function downloadAndClose() { closeModal(); downloadScores(); }
+  function closeModal() { document.getElementById('completionModal').style.display = 'none'; }
+  function updateResultsBox() { /* 自动更新结果框（如果需要）可在此实现，当前collect已做 */ }
+  document.addEventListener('input', (e) => { if(e.target.matches('input[type="number"]')) { saveScoresToStorage(); updateGroupCompletionStatus(e.target.dataset.group); updateOverallProgress(); } });
+</script>
+
+</body>
+</html>
